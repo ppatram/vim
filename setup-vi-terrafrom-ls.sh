@@ -12,7 +12,7 @@ git clone https://github.com/prabirshrestha/async.vim.git
 git clone https://github.com/prabirshrestha/vim-lsp.git
 git clone https://github.com/prabirshrestha/asyncomplete.vim.git
 git clone https://github.com/prabirshrestha/asyncomplete-lsp.vim.git
-
+git clone https://github.com/jiangmiao/auto-pairs.git
 
 # unzip
 unzip -v
@@ -48,7 +48,6 @@ if [ $? -ne 0 ]; then
 fi
 
 # terraform-lsp
-terraform-lsp -v
 if [ ! -f "/usr/bin/terraform-lsp" ]; then
   cd /tmp
   wget wget https://github.com/juliosueiras/terraform-lsp/releases/download/v0.0.11-beta2/terraform-lsp_0.0.11-beta2_linux_amd64.tar.gz
@@ -66,6 +65,13 @@ hi Search ctermfg=Red
 set autoindent
 set expandtab
 set tabstop=2
+hi MatchParen cterm=none ctermbg=yellow ctermfg=black
+
+" Minimal Configuration
+set nocompatible
+syntax on
+filetype plugin indent on
+
 
 if empty(glob('~/.vim/autoload/plug.vim'))
         silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
@@ -98,9 +104,33 @@ if executable('terraform-ls')
         \ })
 endif
 
-" Key bindings
-" Use <c-space> to trigger completion.
-inoremap <silent><expr> <c-space> coc#refresh()
+" Syntastic Config
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
+
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 1
+let g:syntastic_check_on_wq = 0
+
+" (Optional)Remove Info(Preview) window
+set completeopt-=preview
+
+" (Optional)Hide Info(Preview) window after completions
+autocmd CursorMovedI * if pumvisible() == 0|pclose|endif
+autocmd InsertLeave * if pumvisible() == 0|pclose|endif
+
+" (Optional) Enable terraform plan to be include in filter
+let g:syntastic_terraform_tffilter_plan = 1
+
+" (Optional) Default: 0, enable(1)/disable(0) plugin's keymapping
+let g:terraform_completion_keys = 1
+
+" (Optional) Default: 1, enable(1)/disable(0) terraform module registry completion
+let g:terraform_registry_module_completion = 0
+
+
 EOF
 
 # coc-config.json
