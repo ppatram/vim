@@ -2,9 +2,17 @@
 user=$1
 MYVIMRC="/home/$user/.vimrc"
 VIMDIR="/home/$user/.vim"
-mkdir -p $VIMDIR
+mkdir -p $VIMDIR/plugged
 #git clone https://github.com/hashivim/vim-terraform.git
 #curl -fLo ~/.vim/autoload/plug.vim --create-dirs     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+
+# additional plugins
+cd $VIMDIR/plugged
+git clone https://github.com/prabirshrestha/async.vim.git
+git clone https://github.com/prabirshrestha/vim-lsp.git
+git clone https://github.com/prabirshrestha/asyncomplete.vim.git
+git clone https://github.com/prabirshrestha/asyncomplete-lsp.vim.git
+
 
 # unzip
 unzip -v
@@ -27,6 +35,9 @@ if [ $? -ne 0 ]; then
   apt install -y nodejs
 fi
 
+# vim language server
+npm install -g vim-language-server
+
 # terraform-ls
 terraform-ls -v
 if [ $? -ne 0 ]; then
@@ -35,6 +46,17 @@ if [ $? -ne 0 ]; then
   unzip terraform-ls_0.32.7_linux_amd64.zip
   mv terraform-ls /usr/bin/
 fi
+
+# terraform-lsp
+terraform-lsp -v
+if [ ! -f "/usr/bin/terraform-lsp" ]; then
+  cd /tmp
+  wget wget https://github.com/juliosueiras/terraform-lsp/releases/download/v0.0.11-beta2/terraform-lsp_0.0.11-beta2_linux_amd64.tar.gz
+  tar zxvf terraform-lsp_0.0.11-beta2_linux_amd64.tar.gz
+  mv terraform-lsp /usr/bin
+fi
+
+
 
 # vimrc
 cat << EOF > /home/$user/.vimrc
@@ -76,6 +98,9 @@ if executable('terraform-ls')
         \ })
 endif
 
+" Key bindings
+" Use <c-space> to trigger completion.
+inoremap <silent><expr> <c-space> coc#refresh()
 EOF
 
 # coc-config.json
@@ -95,5 +120,6 @@ cat << EOF > $VIMDIR/coc-setting.json
         }
 }
 EOF
+
 
 chown -R ${user}:${user} $VIMDIR $VIMRC
